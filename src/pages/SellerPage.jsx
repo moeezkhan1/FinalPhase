@@ -9,6 +9,7 @@ const SellerPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
   const [newListing, setNewListing] = useState(initialListingState());
+  const [user, setUser] = useState({});
 
   function initialListingState() {
     return {
@@ -27,20 +28,36 @@ const SellerPage = () => {
       location: "",
     };
   }
+  const fetchuser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:3001/api/users/me", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setUser(data); // Store user data in state
+      fetchSellerListings(data.id); // Pass user ID to fetch bookings
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
   const createListing = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "http://localhost:3001/api/seller/listings",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `⁠Bearer ${token}`,
-          },
-          body: JSON.stringify(newListing),
-        }
-      );
+
+      const newListings = { ...newListing, orid: Date.now(), seller: user.id };
+      const response = await fetch("http://localhost:3001/api/listings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newListings),
+      });
       if (!response.ok) {
         throw new Error("Failed to create listing");
       }
@@ -151,6 +168,7 @@ const SellerPage = () => {
   useEffect(() => {
     fetchSellerListings();
     fetchBookingsForSeller();
+    fetchuser();
   }, []);
 
   return (
@@ -230,22 +248,22 @@ const ListingForm = ({
   onSubmit,
   onUpdateListing,
 }) => (
-  <div className="fixed inset-0 z-10 bg-black bg-opacity-50 flex justify-center items-center">
+  <div className="fixed inset-0 z-10 bg-gray-800 bg-opacity-75 flex justify-center items-center">
     <form
-      className="bg-white p-4 rounded shadow-md max-w-sm w-full"
+      className="bg-white p-6 rounded shadow-lg max-w-md w-full"
       onSubmit={async (e) => {
         e.preventDefault();
         await onSubmit();
         onClose();
       }}
     >
-      <h3 className="text-lg font-medium mb-3">
+      <h3 className="text-xl font-bold mb-4">
         {isEditing ? "Edit Listing" : "Add New Listing"}
       </h3>
       {Object.keys(listing).map((field) => (
         <div key={field} className="mb-2">
           <label
-            className="block text-sm text-gray-600 mb-1 capitalize"
+            className="block text-gray-700 mb-1 capitalize"
             htmlFor={field}
           >
             {field}
@@ -262,21 +280,29 @@ const ListingForm = ({
                 : "text"
             }
             value={listing[field]}
-            onChange={(e) => onUpdateListing(field, e.target.value)}
-            className="border p-2 w-full rounded text-sm"
+            onChange={(e) =>
+              onUpdateListing(
+                field,
+                field === "images"
+                  ? e.target.value.split(",").map((img) => img.trim())
+                  : e.target.value
+              )
+            }
+            className="border p-2 w-full rounded"
           />
         </div>
       ))}
+
       <div className="flex justify-between">
         <button
           type="submit"
-          className="bg-gray-800 text-white px-3 py-1 rounded hover:bg-gray-700 transition"
+          className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition"
         >
           Submit
         </button>
         <button
           type="button"
-          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-400 transition"
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition"
           onClick={onClose}
         >
           Cancel
