@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Slide } from "react-slideshow-image";
@@ -6,18 +7,9 @@ import React from "react";
 import Navbar from "../components/Navbar_CP";
 import { useNavigate } from "react-router-dom";
 
-const divStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundSize: "cover",
-  height: "500px",
-};
-
 const BookingPage = () => {
   const { orid } = useParams();
   const [listing, setListing] = useState(null);
-  const [totalPrice, settotalP] = useState(0);
   const navigate = useNavigate();
   const [newBooking, setNewBooking] = useState({
     title: "",
@@ -42,7 +34,6 @@ const BookingPage = () => {
         setListing(data);
         setNewBooking((prev) => ({
           ...prev,
-
           listing: data._id,
           seller: data.seller,
         }));
@@ -72,13 +63,12 @@ const BookingPage = () => {
 
   const handleBooking = async () => {
     try {
-      const userToken = localStorage.getItem("token"); // Assuming token holds user info
+      const userToken = localStorage.getItem("token");
       if (!userToken) {
         alert("Please log in to book.");
         return;
       }
 
-      // Fetch user information
       const userResponse = await fetch("http://localhost:3001/api/users/me", {
         headers: { Authorization: `Bearer ${userToken}` },
       });
@@ -90,7 +80,6 @@ const BookingPage = () => {
         title: listing.title,
       };
 
-      // Create the booking
       const response = await fetch("http://localhost:3001/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,17 +87,7 @@ const BookingPage = () => {
       });
 
       if (response.ok) {
-        // Booking successful, update listing status
-        // const updateListingResponse = await fetch(
-        //   `http://localhost:3001/api/listings/${newBooking.listing}`,
-        //   {
-        //     method: 'PATCH',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ booked: true  , status: 'Booking closed' }),
-        //   }
-        // );
-
-        alert("Booking successful ");
+        alert("Booking successful!");
         navigate("/profile");
       } else {
         alert("Booking failed. Please try again.");
@@ -119,148 +98,153 @@ const BookingPage = () => {
   };
 
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen">
       <Navbar />
-      <div className="max-w-3xl mx-auto my-10 p-6 bg-gray-50 shadow-lg rounded-lg">
-        {listing && (
-          <>
+      <div className="container mx-auto py-10 px-4">
+        {listing ? (
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {/* Image Slider */}
-            <div className="slide-container rounded-lg overflow-hidden shadow-md mb-6">
+            <div className="relative">
               <Slide>
                 {listing.images.map((slideImage, index) => (
                   <div key={index}>
-                    <div
-                      style={{
-                        ...divStyle,
-                        backgroundImage: `url(${slideImage})`,
-                        borderRadius: "0.5rem",
-                      }}
+                    <img
+                      src={slideImage}
+                      alt={`Slide ${index}`}
+                      className="w-full h-72 object-cover"
                     />
                   </div>
                 ))}
               </Slide>
             </div>
 
-            <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              Booking for <span className="text-teal-600">{listing.title}</span>
-            </h2>
-
-            {/* Booking Form */}
-            <div className="space-y-5">
-              {/* Check-In Date */}
-              <div className="flex flex-col">
-                <label
-                  htmlFor="check-in"
-                  className="text-lg font-semibold text-gray-700 mb-2"
-                >
-                  Check-in:
-                </label>
-                <input
-                  id="check-in"
-                  type="date"
-                  value={newBooking.CheckIn}
-                  onChange={(e) => {
-                    const CheckIn = e.target.value;
-
-                    if (newBooking.CheckOut < CheckIn) {
-                      alert(
-                        `Please choose a date before ${newBooking.CheckOut}`
-                      );
-                      setNewBooking({
-                        ...newBooking,
-                        CheckIn: newBooking.CheckOut,
-                      });
-                      calculateTotalPrice();
-                    } else {
-                      setNewBooking({ ...newBooking, CheckIn });
-                      calculateTotalPrice();
-                    }
-                  }}
-                  className="border border-gray-300 rounded-lg p-3 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  required
-                />
-              </div>
-
-              {/* Check-Out Date */}
-              <div className="flex flex-col">
-                <label
-                  htmlFor="check-out"
-                  className="text-lg font-semibold text-gray-700 mb-2"
-                >
-                  Check-out:
-                </label>
-                <input
-                  id="check-out"
-                  type="date"
-                  value={newBooking.CheckOut}
-                  onChange={(e) => {
-                    const CheckOut = e.target.value;
-
-                    if (newBooking.CheckIn > CheckOut) {
-                      alert(`Please choose a date after ${newBooking.CheckIn}`);
-                      setNewBooking({
-                        ...newBooking,
-                        CheckOut: newBooking.CheckIn,
-                      });
-                      calculateTotalPrice();
-                    } else {
-                      setNewBooking({ ...newBooking, CheckOut });
-                      calculateTotalPrice();
-                    }
-                  }}
-                  className="border border-gray-300 rounded-lg p-3 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  required
-                />
-              </div>
-
-              {/* Guests */}
-              <div className="flex flex-col">
-                <label
-                  htmlFor="guests"
-                  className="text-lg font-semibold text-gray-700 mb-2"
-                >
-                  Guests:
-                </label>
-                <input
-                  id="guests"
-                  type="number"
-                  min="1"
-                  value={newBooking.guests}
-                  onChange={(e) => {
-                    const guestInput = Number(e.target.value);
-                    if (guestInput > listing.guests) {
-                      alert(
-                        `The maximum allowed guests for this listing is ${listing.guests}. Please enter a valid number.`
-                      );
-                      setNewBooking({ ...newBooking, guests: listing.guests });
-                    } else {
-                      setNewBooking({ ...newBooking, guests: guestInput });
-                    }
-                  }}
-                  className="border border-gray-300 rounded-lg p-3 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Total Price Section */}
-            <div className="mt-6">
-              <p className="text-2xl font-semibold text-gray-800">
-                Total Price:{" "}
-                <span className="text-teal-600">${newBooking.totalPrice}</span>
+            {/* Booking Content */}
+            <div className="p-6">
+              <h2 className="text-3xl font-bold text-gray-800">
+                Book <span className="text-teal-600">{listing.title}</span>
+              </h2>
+              <p className="text-gray-600 text-sm mb-6">
+                {listing.description || "Experience an unforgettable stay!"}
               </p>
-            </div>
 
-            {/* Confirm Booking Button */}
-            <div className="mt-8">
+              <div className="space-y-4">
+                {/* Check-In */}
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="check-in"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Check-In
+                  </label>
+                  <input
+                    id="check-in"
+                    type="date"
+                    value={newBooking.CheckIn}
+                    onChange={(e) => {
+                      const CheckIn = e.target.value;
+                      if (newBooking.CheckOut < CheckIn) {
+                        alert(
+                          `Please choose a date before ${newBooking.CheckOut}`
+                        );
+                        setNewBooking({
+                          ...newBooking,
+                          CheckIn: newBooking.CheckOut,
+                        });
+                      } else {
+                        setNewBooking({ ...newBooking, CheckIn });
+                      }
+                      calculateTotalPrice();
+                    }}
+                    className="mt-2 border rounded-md px-4 py-2"
+                  />
+                </div>
+
+                {/* Check-Out */}
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="check-out"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Check-Out
+                  </label>
+                  <input
+                    id="check-out"
+                    type="date"
+                    value={newBooking.CheckOut}
+                    onChange={(e) => {
+                      const CheckOut = e.target.value;
+                      if (newBooking.CheckIn > CheckOut) {
+                        alert(
+                          `Please choose a date after ${newBooking.CheckIn}`
+                        );
+                        setNewBooking({
+                          ...newBooking,
+                          CheckOut: newBooking.CheckIn,
+                        });
+                      } else {
+                        setNewBooking({ ...newBooking, CheckOut });
+                      }
+                      calculateTotalPrice();
+                    }}
+                    className="mt-2 border rounded-md px-4 py-2"
+                  />
+                </div>
+
+                {/* Guests */}
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="guests"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Guests
+                  </label>
+                  <input
+                    id="guests"
+                    type="number"
+                    min="1"
+                    value={newBooking.guests}
+                    onChange={(e) => {
+                      const guestInput = Number(e.target.value);
+                      if (guestInput > listing.guests) {
+                        alert(
+                          `The maximum number of guests allowed is ${listing.guests}.`
+                        );
+                        setNewBooking({
+                          ...newBooking,
+                          guests: listing.guests,
+                        });
+                      } else {
+                        setNewBooking({ ...newBooking, guests: guestInput });
+                      }
+                    }}
+                    className="mt-2 border rounded-md px-4 py-2"
+                  />
+                </div>
+              </div>
+
+              {/* Total Price */}
+              <div className="mt-6">
+                <p className="text-lg text-gray-800 font-semibold">
+                  Total Price:{" "}
+                  <span className="text-teal-600 font-bold">
+                    ${newBooking.totalPrice}
+                  </span>
+                </p>
+              </div>
+
+              {/* Confirm Button */}
               <button
                 onClick={handleBooking}
-                className="w-full py-3 bg-teal-600 text-white text-lg font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300"
+                className="mt-6 w-full bg-teal-600 text-white font-medium text-lg py-3 rounded-md shadow-md hover:bg-teal-700 transition"
               >
                 Confirm Booking
               </button>
             </div>
-          </>
+          </div>
+        ) : (
+          <div className="flex justify-center items-center min-h-screen">
+            <p className="text-gray-600 text-lg">Loading...</p>
+          </div>
         )}
       </div>
     </div>

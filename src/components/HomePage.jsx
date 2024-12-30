@@ -48,7 +48,7 @@ const HomePage = () => {
     : listings;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-purple-100 min-h-screen">
       <Navbar onSearch={handleSearch} />
       <Categories onCategorySelect={handleCategorySelect} />
 

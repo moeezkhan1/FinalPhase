@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import LoginSignupModal from "./LoginSignupModal";
 //import SearchBar from './SearchBar';
 
+// eslint-disable-next-line no-unused-vars
 const Navbar = ({ onSearch }) => {
   const [showModal, setShowModal] = useState(false); // Show login/signup modal
   const [user, setUser] = useState(null); // Store user info
@@ -64,9 +65,13 @@ const Navbar = ({ onSearch }) => {
       <div className="flex justify-between items-center">
         {/* Logo Section */}
         <a href="/" className="flex items-center space-x-3">
-          <img src="./waterbnb.png" alt="Waterbnb Logo" className="h-10" />
+          <img
+            src="../public/waterbnb.png"
+            alt="Waterbnb Logo"
+            className="h-10"
+          />
           <span className="font-bold text-xl text-gray-900 hover:text-teal-600 transition duration-300">
-            Waterbnb
+            Airbnb
           </span>
         </a>
 

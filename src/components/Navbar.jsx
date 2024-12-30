@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+// eslint-disable-next-line no-unused-vars
 import { FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import LoginSignupModal from "./LoginSignupModal";
 import SearchBar from "./SearchBar";
 
@@ -10,7 +12,6 @@ const Navbar = ({ onSearch }) => {
   const [loading, setLoading] = useState(true); // Track loading state
   const navigate = useNavigate();
 
-  // Fetch user info from the API
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -27,14 +28,8 @@ const Navbar = ({ onSearch }) => {
             "Content-Type": "application/json",
           },
         });
-        // console.log(response);
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.error("Unauthorized: Invalid or missing token");
-          } else {
-            console.error(`Failed to fetch user info: ${response.status}`);
-          }
-        } else {
+
+        if (response.ok) {
           const userData = await response.json();
           setUser(userData);
         }
@@ -47,128 +42,84 @@ const Navbar = ({ onSearch }) => {
 
     fetchUserInfo();
   }, []);
-  const handleprofile = () => {
-    if (user != null) {
-      if (user.role === "customer") {
-        navigate("/profile");
-      } else {
-        alert("You must be a customer to view your profile.");
-      }
-    } else {
-      alert("You must be logged in as customer to view your profile.");
-    }
-  };
+
   const handleLogout = () => {
     localStorage.removeItem("token"); // Remove token
     setUser(null);
     navigate("/");
   };
 
-  const showprofilebutton = () => {
-    if (user != null) {
-      if (user.role === "customer") {
-        return (
-          <button
-            className="px-4 py-2 bg-teal-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition duration-300 shadow-md"
-            onClick={() => handleprofile()}
-          >
-            Profile
-          </button>
-        );
-      }
+  const handleProfile = () => {
+    if (user?.role === "customer") {
+      navigate("/profile");
+    } else {
+      alert("You must be a customer to view your profile.");
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>; // Show loading while fetching
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <header className="flex flex-col space-y-4 p-6 border-b border-gray-300 bg-gray-50 shadow-md">
-      {/* Top Navbar Section */}
+    <header className="flex flex-col bg-gradient-to-b from-cyan-300  to-white-100 space-y-6 p-6 shadow-md">
       <div className="flex justify-between items-center">
-        {/* Logo Section */}
         <a href="/" className="flex items-center space-x-3">
-          <img src="./waterbnb.png" alt="Waterbnb Logo" className="h-10" />
-          <span className="font-bold text-xl text-gray-900 hover:text-teal-600 transition duration-300">
-            Waterbnb
+          <img src="./waterbnb.png" alt="Waterbnb Logo" className="h-12" />
+          <span className="font-bold text-2xl text-teal-600 hover:text-teal-700">
+            Airbnb
           </span>
         </a>
 
-        {/* Right Action Section */}
-        <div className="flex items-center space-x-6 text-gray-700">
-          {/* Profile */}
-          {showprofilebutton()}
+        <div className="flex items-center space-x-6">
+          {user?.role === "customer" && (
+            <button
+              className="px-4 py-2 bg-teal-500 text-white text-sm rounded-lg hover:bg-blue-600"
+              onClick={handleProfile}
+            >
+              Profile
+            </button>
+          )}
           {user ? (
-            // User is logged in
             <div className="relative group">
-              {/* Avatar */}
-              <div className="flex items-center space-x-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition duration-200">
+              <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded-lg">
                 <img
-                  src="../public/pfp.png" // Dynamic avatar URL
+                  src="../public/pfp.png"
                   alt="User Avatar"
-                  className="w-10 h-10 rounded-full object-cover border border-gray-400"
+                  className="w-10 h-10 rounded-full border"
                 />
-                <span className="hidden md:block font-medium text-gray-900">
-                  {user.name}
-                </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                <span className="font-medium">{user.name}</span>
               </div>
-
-              {/* Dropdown */}
-              <div className="absolute right-0 z-10 mt-2 w-56 bg-white rounded-lg shadow-lg hidden group-hover:block">
+              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg hidden group-hover:block">
                 <div className="p-4">
-                  <p className="font-semibold text-gray-900">{user.name}</p>
-                  <p className="text-sm text-gray-500">{user.role}</p>
+                  <p className="font-semibold">{user.name}</p>
+                  <p className="text-sm">{user.role}</p>
                 </div>
-                <hr />
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
                   onClick={handleLogout}
+                  className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Logout
                 </button>
               </div>
             </div>
           ) : (
-            // User is not logged in
-            <div className="flex items-center space-x-4">
-              <button
-                className="px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition duration-300 shadow-md"
-                onClick={() => setShowModal(true)}
-              >
-                Login / Sign Up
-              </button>
-              <div className="p-2 bg-gray-300 rounded-full hover:bg-gray-400 transition">
-                <FaUserCircle size={26} className="text-gray-700" />
-              </div>
-            </div>
+            <button
+              className="px-4 py-2 bg-teal-600 text-white text-sm rounded-lg"
+              onClick={() => setShowModal(true)}
+            >
+              Login / Sign Up
+            </button>
           )}
         </div>
       </div>
 
-      {/* Search Bar Section */}
-      <div className="mt-6">
-        <SearchBar onSearch={onSearch} />
-      </div>
-
-      {/* Login/Signup Modal */}
+      <SearchBar onSearch={onSearch} />
       {showModal && <LoginSignupModal onClose={() => setShowModal(false)} />}
     </header>
   );
+};
+
+Navbar.propTypes = {
+  onSearch: PropTypes.func.isRequired,
 };
 
 export default Navbar;

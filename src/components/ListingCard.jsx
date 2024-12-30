@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
-import { React, useState, useEffect } from "react";
+// eslint-disable-next-line no-unused-vars
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 const divStyle = {
   display: "flex",
@@ -9,6 +11,7 @@ const divStyle = {
   justifyContent: "center",
   backgroundSize: "cover",
   height: "250px",
+  borderRadius: "0.5rem",
 };
 
 const ListingCard = ({
@@ -22,14 +25,12 @@ const ListingCard = ({
 }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          //setLoading(false);
-          return;
-        }
+        if (!token) return;
 
         const response = await fetch("http://localhost:3001/api/users/me", {
           method: "GET",
@@ -40,36 +41,25 @@ const ListingCard = ({
         });
 
         if (!response.ok) {
-          if (response.status === 401) {
-            console.error("Unauthorized: Invalid or missing token");
-          } else {
-            console.error(`Failed to fetch user info: ${response.status}`);
-          }
-          return null; // Return null if there's an error
-        } else {
-          const userData = await response.json();
-          //console.log(userData);
-          setUser(userData); // Return the fetched user data
+          console.error(`Failed to fetch user info: ${response.status}`);
+          return;
         }
+        const userData = await response.json();
+        setUser(userData);
       } catch (error) {
         console.error("Error fetching user info:", error);
-        return null; // Handle errors gracefully
-      } finally {
-        //setLoading(false);
       }
     };
     fetchUserInfo();
   }, []);
+
   const handleCardClick = () => {
     navigate(`/listings/${orid}`);
   };
 
   const handleBookClick = (e) => {
     e.stopPropagation();
-    //const userData = fetchUserInfo();
-
-    //console.log(user)
-    if (user != null) {
+    if (user) {
       if (user.role === "customer") {
         navigate(`/bookings/${orid}`);
       } else {
@@ -77,65 +67,73 @@ const ListingCard = ({
         navigate("/login");
       }
     } else {
-      alert("You must be logged in as customer to book a listing.");
+      alert("You must be logged in to book a listing.");
       navigate("/login");
-    }
-  };
-
-  const bookingbutton = () => {
-    if (status === "Booking closed") {
-      return (
-        <button className="mt-2 p-2 bg-red-500 text-white rounded-lg">
-          Booked
-        </button>
-      );
-    } else {
-      return (
-        <button
-          onClick={handleBookClick}
-          className="mt-2 p-2 bg-teal-500 text-white rounded-lg"
-        >
-          Book Me
-        </button>
-      );
     }
   };
 
   return (
     <div
       onClick={handleCardClick}
-      className="border p-6 rounded-lg shadow-lg hover:shadow-xl transform transition-transform duration-300 hover:scale-105 bg-white cursor-pointer"
+      className="w-full max-w-sm bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 cursor-pointer"
     >
       {/* Image Slider */}
-      <div
-        className="slide-container rounded-lg overflow-hidden mb-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Slide>
+      <div className="relative group">
+        <Slide autoplay={false} indicators>
           {images.map((slideImage, index) => (
-            <div key={index}>
+            <div key={index} className="h-64">
               <div
                 style={{
                   ...divStyle,
                   backgroundImage: `url(${slideImage})`,
-                  borderRadius: "0.5rem",
                 }}
               ></div>
             </div>
           ))}
         </Slide>
+        <span
+          className={`absolute top-4 left-4 px-3 py-1 rounded-lg text-sm font-semibold text-white ${
+            status === "Available" ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {status}
+        </span>
       </div>
 
-      {/* Listing Details */}
-      <h3 className="font-semibold text-xl text-gray-800 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 mb-1">Hosted by {host}</p>
-      <p className="text-sm text-gray-500 mb-1">{location}</p>
-      <p className="text-lg font-bold text-teal-600 mb-4">${price} /day</p>
+      {/* Content Section */}
+      <div className="p-4">
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
+        <p className="text-sm text-gray-600 mb-1">
+          <span className="font-medium">Host:</span> {host}
+        </p>
+        <p className="text-sm text-gray-600 mb-1">
+          <span className="font-medium">Location:</span> {location}
+        </p>
+        <p className="text-lg font-bold text-teal-500 mb-4">${price} / day</p>
+      </div>
 
-      {/* Booking Button */}
-      {bookingbutton()}
+      {/* Footer Section */}
+      <div className="flex items-center justify-between bg-gray-100 px-4 py-3">
+        <p className="text-xs text-gray-500">ORID: {orid}</p>
+        <button
+          className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition duration-300"
+          onClick={handleBookClick}
+        >
+          Book Now
+        </button>
+      </div>
     </div>
   );
+};
+
+ListingCard.propTypes = {
+  orid: PropTypes.string.isRequired,
+  images: PropTypes.arrayOf(PropTypes.string).isRequired,
+  title: PropTypes.string.isRequired,
+  host: PropTypes.string.isRequired,
+  status: PropTypes.string.isRequired,
+  price: PropTypes.number.isRequired,
+  location: PropTypes.string.isRequired,
 };
 
 export default ListingCard;

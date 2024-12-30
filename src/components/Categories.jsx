@@ -38,7 +38,7 @@ const categories = [
 
 const Categories = ({ onCategorySelect }) => {
   return (
-    <div className="flex items-center justify-center flex-wrap gap-6 p-4 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-200 rounded-xl shadow-lg">
+    <div className="flex items-center justify-center flex-wrap gap-6 p-4 bg-gradient-to-r from-blue-50 via-blue-100 to-green-100 rounded-xl shadow-lg">
       {categories.map((category, index) => (
         <button
           key={index}
