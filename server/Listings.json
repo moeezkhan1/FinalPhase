@@ -1,0 +1,98 @@
+
+
+[{
+  "_id": {
+    "$oid": "675c7d107c2b7b223b99de35"
+  },
+  "type": "Stays",
+  "amenities": [
+    "Wifi",
+    "Air Conditioning",
+    "life"
+  ],
+  "guests": 4,
+  "bedrooms": 2,
+  "bathrooms": 1,
+  "beds": 2,
+  "title": "Modern Apartment in Downtown",
+  "host": "ahmad",
+  "status": "Booking open",
+  "price": 120,
+  "booked": false,
+  "location": "Karachi",
+  "seller": "67646104a4f51947dcf5a0db",
+  "orid": 1,
+  "images": [
+    "../public/demo.png",
+    "../public/demo2.jpg",
+    "../public/demo3.jpg"
+  ],
+  "updatedAt": {
+    "$date": "2024-12-30T09:43:47.928Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "675c7d107c2b7b223b99de36"
+  },
+  "type": "Stays",
+  "amenities": [
+    "Pool",
+    "Garden",
+    "WiFi"
+  ],
+  "guests": 6,
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "beds": 3,
+  "title": "Luxury Villa with Pool",
+  "host": "ahmad",
+  "status": "Booking open",
+  "price": 25,
+  "booked": false,
+  "location": "Islamabad",
+  "seller": "67646104a4f51947dcf5a0db",
+  "orid": 2,
+  "images": [
+    "../public/demo.png",
+    "../public/demo2.jpg",
+    "../public/demo3.jpg"
+  ],
+  "updatedAt": {
+    "$date": "2024-12-30T09:40:26.250Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "676ae21e0f730eaae004e6cf"
+  },
+  "orid": 3,
+  "type": "Stays",
+  "amenities": [
+    "life",
+    " wifi"
+  ],
+  "guests": 4,
+  "bedrooms": 4,
+  "bathrooms": 4,
+  "beds": 4,
+  "title": "sdasd",
+  "host": "Az",
+  "status": "Booking open",
+  "price": 4,
+  "booked": false,
+  "location": "sds",
+  "seller": "67646104a4f51947dcf5a0db",
+  "createdAt": {
+    "$date": "2024-12-24T16:32:30.863Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-28T10:53:47.781Z"
+  },
+  "__v": 0,
+  "images": [
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPIe-QKVYMDt_Fj03s4o5-6KHXY0yig8LoPQ&s",
+    "../public/demo2.jpg",
+    "../public/demo3.jpg"
+  ]
+}]
